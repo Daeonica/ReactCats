@@ -1,55 +1,25 @@
-import { useEffect, useState } from "react"
 import './App.css'
+import { useCatImage } from './hooks/useCatImage.js'
+import { useCatFact } from './hooks/useCatFact.js'
+import { Otro } from './Components/Otro'
 
-//const que nos devuelve una imagen
-const CAT_ENDPOINT_IMAGE_URL = 'https://catass.com/cat/says/${firstWord}?size=50&color=read&son=true';
+export function App () {
+  const { fact, refreshFact } = useCatFact()
+  const { imageUrl } = useCatImage({ fact })
 
-//const que devuelve un random fact
-const CAT_ENDPOINT_RANDOM_FACT = 'https://catfact.ninja/fact';
+  const handleClick = async () => {
+    refreshFact()
+  }
 
-//cat image url prefix
-const CAT_PREFIX_IMAGE_URL = 'https://cataas.com'
+  return (
+    <main>
+      <h1>App de gatitos</h1>
 
-export function App() {
-    const [fact, setFact] = useState('');
-    const [imageUrl, setImageUrl] = useState();
+      <button onClick={handleClick}>Get new fact</button>
 
-    //useEffect para recibir el randomfact
-    //para hacer el fetch se usa el useEffect porque queremos que el fetch se renderice cuando se monta el componente
-    useEffect(() => {
-        //hacemos el fetch
-        fetch(CAT_ENDPOINT_RANDOM_FACT)
-            //devuelve la promesa y la respuesta
-            .then(res => res.json())
-            //data es toda la informcion en formato json, y accedemos a .fact
-            .then(data => {
-                const { fact } = data
-                setFact(fact)
-
-
-            })
-    }, []) //  con el [] se renderiza la primera vez, sin el [] se renderiza siempre, si pusieramos [setFact] se renderizaria cuando modifiquemos el fact
-
-
-    //useEffect para recuperar la imagen con las tres primeras palabras del fact
-    useEffect(() => {
-        if (!fact) return
-    
-        const threeFirstWords = fact.split(' ', 3).join(' ')
-    
-        fetch(`https://cataas.com/cat/says/${threeFirstWords}?size=50&color=red&json=true`)
-          .then(res => res.json())
-          .then(response => {
-            const { url } = response
-            setImageUrl(url)
-          })
-      }, [fact])
-
-    return (
-        <main>
-            <h1>App de gatitos</h1>
-            {fact && <p>{fact}</p>}
-            {imageUrl && <img src={`${ CAT_PREFIX_IMAGE_URL }${ imageUrl }`} alt={`Image extracted using the first three words of ${ fact }`} />}
-        </main>
-    )
+      {fact && <p>{fact}</p>}
+      {imageUrl && <img src={imageUrl} alt={`Image extracted using the first rhee words for ${fact}`} />}
+      <Otro></Otro>
+    </main>
+  )
 }
